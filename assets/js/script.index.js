@@ -10,6 +10,18 @@ class User {
             this.age = this.calculateAge(),
             this.client = this.possibleClient();   
     }
+    calculateAge() {
+        const today = new Date();
+        const dates = new Date(this.birthdate);
+        let day = Number( today.getFullYear() - dates.getFullYear());
+        const m = Number(today.getMonth() - dates.getMonth());
+
+        if (m < 0 || (m === 0 && today.getDate() < dates.getDate())) {
+            day--;
+        }
+
+        return day;
+    }
     getZodiacSign() {
         let birthdate = new Date(this.birthdate);
         let day = birthdate.getDate();
@@ -42,18 +54,6 @@ class User {
             return "Sagitário ♐";
         }
     }
-    calculateAge() {
-        const today = new Date();
-        const dates = new Date(this.birthdate);
-        let day = Number( today.getFullYear() - dates.getFullYear());
-        const m = Number(today.getMonth() - dates.getMonth());
-
-        if (m < 0 || (m === 0 && today.getDate() < dates.getDate())) {
-            day--;
-        }
-
-        return day;
-    }
     possibleClient() {
         if (this.age >= 18 || this.age <= 30) { 
             return 'Sim'
@@ -77,6 +77,9 @@ class UserList {
             sendSuccesMsg("User enviado")
             clearInputs();
         }
+    }
+    countUser(){
+        return this.users.length;
     }
 }
 const userList = new UserList();
@@ -118,6 +121,8 @@ function showUsersList() {
         `
     });
     document.getElementById("user-list").innerHTML = content;
+    const countUsers = userList.countUser();
+    document.getElementById("contador").innerHTML = `Usuários: ${countUsers}`
 }
 function dateinPTBR(dateInpt) {
     return dateInpt.split('-').reverse().join('/')
