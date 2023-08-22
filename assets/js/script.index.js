@@ -1,19 +1,21 @@
 class User {
-    constructor(name, email, birthdate, city, phone, cpf){
+    constructor(name, email, birthdate, city, phone, cpf) {
         this.name = name,
-        this.email = email,
-        this.date = birthdate
-        this.city = city,
-        this.phone = phone,
-        this.cpf = cpf,
-        this.sign = this.getZodiacSign()
+            this.email = email,
+            this.date = birthdate,
+            this.city = city,
+            this.phone = phone,
+            this.cpf = cpf,
+            this.sign = this.getZodiacSign(),
+            this.age = this.calculateAge(),
+            this.client = this.possibleClient();   
     }
     getZodiacSign() {
         let birthdate = new Date(this.birthdate);
         let day = birthdate.getDate();
         let month = birthdate.getMonth() + 1;
         console.log("Passou pelo getSigno() da class User");
-    
+
         if ((month == 1 && day <= 20) || (month == 12 && day >= 22)) {
             return "Capricórnio ♑";
         } else if ((month == 1 && day >= 21) || (month == 2 && day <= 18)) {
@@ -40,13 +42,41 @@ class User {
             return "Sagitário ♐";
         }
     }
+    calculateAge() {
+        const today = new Date();
+        const dates = new Date(this.birthdate);
+        let day = Number( today.getFullYear() - dates.getFullYear());
+        const m = Number(today.getMonth() - dates.getMonth());
+
+        if (m < 0 || (m === 0 && today.getDate() < dates.getDate())) {
+            day--;
+        }
+
+        return day;
+    }
+    possibleClient() {
+        if (this.age >= 18 || this.age <= 30) { 
+            return 'Sim'
+        } else {
+            return 'Não'
+        }
+    }
+
 }
-class UserList{
-    constructor(){
+class UserList {
+    constructor() {
         this.users = []
     }
-    addUserList(user){
-        this.users.push(user)
+    addUserList(user) {
+        if (isAnyInputEmpty() == true) {
+            sendErrorMsg("Preencha todos os campos")
+        } else if (!valida_cpf(user.cpf) == true) {
+            sendErrorMsg("Cpf invalido")
+        } else {
+            this.users.push(user)
+            sendSuccesMsg("User enviado")
+            clearInputs();
+        }
     }
 }
 const userList = new UserList();
@@ -61,10 +91,8 @@ function createUser() {
     userList.addUserList(newUser)
     showUsersList();
     clearInputs();
-    sendErrorMsg();
-    console.log("Mais um user criado");
 }
-function clearInputs(){
+function clearInputs() {
     document.getElementById("name").value = "";
     document.getElementById("email").value = "";
     document.getElementById("birthdate").value = "";
@@ -72,10 +100,10 @@ function clearInputs(){
     document.getElementById("phone").value = "";
     document.getElementById("cpf").value = "";
 }
-function showUsersList(){
+function showUsersList() {
     let content = "";
     userList.users.forEach((user) => {
-        content +=`
+        content += `
         <div class="list-eachUser ">
         <span><b>Nome:</b>${user.name}</span>
         <span><b>E-mail:</b>${user.email}</span>
@@ -83,21 +111,18 @@ function showUsersList(){
         <span><b>Cidade:</b>${user.city}</span>
         <span><b>Numero:</b>${formatedCellphone(user.phone)}</span>
         <span><b>CPF:</b>${formatedCPF(user.cpf)}</span>
-        <span><b>Signo:${user.sign}</b>)}</span>
+        <span><b>Signo:${user.sign}</b></span>
+        <span><b>Idade:${user.age}</b></span>
+        <span><b>Possivel Cliente:${user.client}</b>)}</span>
         </div>
         `
     });
     document.getElementById("user-list").innerHTML = content;
 }
-function dateinPTBR(dateInpt){
+function dateinPTBR(dateInpt) {
     return dateInpt.split('-').reverse().join('/')
 }
-function isAnyInputEmpty(){
-    if(nameInpt == "" && emailInpt == "" && dateInpt == "" && city == "" && phone == "" && cpf == ""){
-        
-    }
-}
-function showUsers(){
+function showUsers() {
     document.getElementById("sub-div").classList.remove("hidden");
     document.getElementById("title-page").classList.add("hidden");
     document.getElementById("main-div").classList.add("hidden");
@@ -117,6 +142,15 @@ function sendErrorMsg(msg) {
     document.getElementById("error-msg").classList.remove("hidden");
     setTimeout(function () {
         document.getElementById("error-msg").classList.add("hidden");
+    }, 4000);
+}
+function sendSuccesMsg(msg) {
+    console.log("Passou pela funcao sendSuccesMsg()");
+
+    document.getElementById("success-msg").innerHTML = msg;
+    document.getElementById("success-msg").classList.remove("hidden");
+    setTimeout(function () {
+        document.getElementById("success-msg").classList.add("hidden");
     }, 4000);
 }
 function formatedCPF(cpf) {
@@ -172,7 +206,17 @@ function formatedCellphone(phone) {
         + cellphoneArray[9] + cellphoneArray[10];
     return cellphoneFormated;
 }
-
+function isAnyInputEmpty() {
+    const nameInpt = document.getElementById("name").value;
+    const emailInpt = document.getElementById("email").value;
+    const dateInpt = document.getElementById("birthdate").value;
+    const city = document.getElementById("address").value;
+    const phone = document.getElementById("phone").value;
+    const cpf = document.getElementById("cpf").value;
+    if (nameInpt == "" || emailInpt == "" || dateInpt == "" || city == "" || phone == "" || cpf == "") {
+        return true
+    }
+}
 /*
 getZodiacSign() {
     let birthdate = new Date(this.birthdate);
