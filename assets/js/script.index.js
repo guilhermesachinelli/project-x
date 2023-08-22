@@ -6,21 +6,21 @@ class User {
             this.city = city,
             this.phone = phone,
             this.cpf = cpf,
-            this.sign = this.getZodiacSign(),
             this.age = this.calculateAge(),
-            this.client = this.possibleClient();   
+            this.sign = this.getZodiacSign(),
+            this.client = this.possibleClient();
     }
     calculateAge() {
         const today = new Date();
-        const dates = new Date(this.birthdate);
-        let day = Number( today.getFullYear() - dates.getFullYear());
-        const m = Number(today.getMonth() - dates.getMonth());
+        const birthdate = new Date(this.birthdate);
+        let age = today.getFullYear() - birthdate.getFullYear();
+        const m = today.getMonth() - birthdate.getMonth();
 
-        if (m < 0 || (m === 0 && today.getDate() < dates.getDate())) {
-            day--;
+        if (m < 0 || (m === 0 && today.getDate() < birthdate.getDate())) {
+            age--;
         }
 
-        return day;
+        return age;
     }
     getZodiacSign() {
         let birthdate = new Date(this.birthdate);
@@ -55,7 +55,7 @@ class User {
         }
     }
     possibleClient() {
-        if (this.age >= 18 || this.age <= 30) { 
+        if (this.age >= 18 || this.age <= 30) {
             return 'Sim'
         } else {
             return 'Não'
@@ -72,13 +72,19 @@ class UserList {
             sendErrorMsg("Preencha todos os campos")
         } else if (!valida_cpf(user.cpf) == true) {
             sendErrorMsg("Cpf invalido")
-        } else {
+        } else if (registredCpf(user.cpf)) {
+            sendErrorMsg("CPF já cadastrado")
+        }
+        else {
             this.users.push(user)
-            sendSuccesMsg("User enviado")
+            sendSuccesMsg("Você entrou para a lista de espera");
             clearInputs();
         }
     }
-    countUser(){
+    getUsers() {
+        return this.users;
+    }
+    countUser() {
         return this.users.length;
     }
 }
@@ -104,9 +110,13 @@ function clearInputs() {
     document.getElementById("cpf").value = "";
 }
 function showUsersList() {
-    let content = "";
-    userList.users.forEach((user) => {
-        content += `
+    if (userList.getUsers().length == 0) {
+        sendErrorMsg("Não há usuários cadastrados");
+        return;
+    } else {
+        let content = "";
+        userList.users.forEach((user) => {
+            content += `
         <div class="list-eachUser ">
         <span><b>Nome:</b>${user.name}</span>
         <span><b>E-mail:</b>${user.email}</span>
@@ -119,8 +129,9 @@ function showUsersList() {
         <span><b>Possivel Cliente:${user.client}</b>)}</span>
         </div>
         `
-    });
-    document.getElementById("user-list").innerHTML = content;
+        });
+        document.getElementById("user-list").innerHTML = content;
+    }
     const countUsers = userList.countUser();
     document.getElementById("contador").innerHTML = `Usuários: ${countUsers}`
 }
@@ -211,6 +222,15 @@ function formatedCellphone(phone) {
         + cellphoneArray[9] + cellphoneArray[10];
     return cellphoneFormated;
 }
+function registredCpf(cpf) {
+    var users = userList.getUsers();
+    var resgistred = false;
+    users.forEach((user) => {
+        if (user.cpf == cpf) {
+            resgistred = true;
+        }
+    });
+}
 function isAnyInputEmpty() {
     const nameInpt = document.getElementById("name").value;
     const emailInpt = document.getElementById("email").value;
@@ -219,7 +239,9 @@ function isAnyInputEmpty() {
     const phone = document.getElementById("phone").value;
     const cpf = document.getElementById("cpf").value;
     if (nameInpt == "" || emailInpt == "" || dateInpt == "" || city == "" || phone == "" || cpf == "") {
-        return true
+        return true;
+    } else {
+        return false;
     }
 }
 /*
