@@ -110,10 +110,6 @@ function clearInputs() {
     document.getElementById("cpf").value = "";
 }
 function showUsersList() {
-    if (userList.getUsers().length == 0) {
-        sendErrorMsg("Não há usuários cadastrados");
-        return;
-    } else {
         let content = "";
         userList.users.forEach((user) => {
             content += `
